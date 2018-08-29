@@ -106,10 +106,10 @@ public class LongTerms extends InternalMappedTerms<LongTerms, LongTerms.Bucket> 
         }
     }
 
-    public LongTerms(String name, BucketOrder order, int requiredSize, long minDocCount, List<PipelineAggregator> pipelineAggregators,
+    public LongTerms(String name, BucketOrder order, int requiredStart, int requiredSize, long minDocCount, List<PipelineAggregator> pipelineAggregators,
             Map<String, Object> metaData, DocValueFormat format, int shardSize, boolean showTermDocCountError, long otherDocCount,
             List<Bucket> buckets, long docCountError) {
-        super(name, order, requiredSize, minDocCount, pipelineAggregators, metaData, format, shardSize, showTermDocCountError,
+        super(name, order, requiredStart, requiredSize, minDocCount, pipelineAggregators, metaData, format, shardSize, showTermDocCountError,
                 otherDocCount, buckets, docCountError);
     }
 
@@ -127,7 +127,7 @@ public class LongTerms extends InternalMappedTerms<LongTerms, LongTerms.Bucket> 
 
     @Override
     public LongTerms create(List<Bucket> buckets) {
-        return new LongTerms(name, order, requiredSize, minDocCount, pipelineAggregators(), metaData, format, shardSize,
+        return new LongTerms(name, order, requiredStart, requiredSize, minDocCount, pipelineAggregators(), metaData, format, shardSize,
                 showTermDocCountError, otherDocCount, buckets, docCountError);
     }
 
@@ -139,7 +139,7 @@ public class LongTerms extends InternalMappedTerms<LongTerms, LongTerms.Bucket> 
 
     @Override
     protected LongTerms create(String name, List<Bucket> buckets, long docCountError, long otherDocCount) {
-        return new LongTerms(name, order, requiredSize, minDocCount, pipelineAggregators(), getMetaData(), format, shardSize,
+        return new LongTerms(name, order, requiredStart, requiredSize, minDocCount, pipelineAggregators(), getMetaData(), format, shardSize,
                 showTermDocCountError, otherDocCount, buckets, docCountError);
     }
 
@@ -169,7 +169,7 @@ public class LongTerms extends InternalMappedTerms<LongTerms, LongTerms.Bucket> 
                 bucket.getDocCount(), (InternalAggregations) bucket.getAggregations(), longTerms.showTermDocCountError,
                 longTerms.showTermDocCountError ? bucket.getDocCountError() : 0, decimalFormat));
         }
-        return new DoubleTerms(longTerms.getName(), longTerms.order, longTerms.requiredSize,
+        return new DoubleTerms(longTerms.getName(), longTerms.order, longTerms.requiredStart, longTerms.requiredSize,
             longTerms.minDocCount, longTerms.pipelineAggregators(),
             longTerms.metaData, longTerms.format, longTerms.shardSize,
             longTerms.showTermDocCountError, longTerms.otherDocCount,

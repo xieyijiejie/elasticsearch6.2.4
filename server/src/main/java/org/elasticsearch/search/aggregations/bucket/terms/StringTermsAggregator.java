@@ -129,6 +129,7 @@ public class StringTermsAggregator extends AbstractStringTermsAggregator {
             }
         }
 
+        final int start = bucketCountThresholds.getRequiredStart();
         final int size = (int) Math.min(bucketOrds.size(), bucketCountThresholds.getShardSize());
 
         long otherDocCount = 0;
@@ -159,6 +160,7 @@ public class StringTermsAggregator extends AbstractStringTermsAggregator {
             list[i] = bucket;
             otherDocCount -= bucket.docCount;
         }
+
         // replay any deferred collections
         runDeferredCollections(survivingBucketOrds);
 
@@ -170,9 +172,9 @@ public class StringTermsAggregator extends AbstractStringTermsAggregator {
           bucket.docCountError = 0;
         }
 
-        return new StringTerms(name, order, bucketCountThresholds.getRequiredSize(), bucketCountThresholds.getMinDocCount(),
+        return new StringTerms(name, order, bucketCountThresholds.getRequiredStart(), bucketCountThresholds.getRequiredSize(), bucketCountThresholds.getMinDocCount(),
                 pipelineAggregators(), metaData(), format, bucketCountThresholds.getShardSize(), showTermDocCountError, otherDocCount,
-                Arrays.asList(list), 0);
+                Arrays.asList(Arrays.copyOfRange(list, start, size)), 0);
     }
 
     @Override

@@ -51,9 +51,9 @@ public class UnmappedTerms extends InternalTerms<UnmappedTerms, UnmappedTerms.Bu
         }
     }
 
-    public UnmappedTerms(String name, BucketOrder order, int requiredSize, long minDocCount,
+    public UnmappedTerms(String name, BucketOrder order,int requiredStart, int requiredSize, long minDocCount,
             List<PipelineAggregator> pipelineAggregators, Map<String, Object> metaData) {
-        super(name, order, requiredSize, minDocCount, pipelineAggregators, metaData);
+        super(name, order, requiredStart, requiredSize, minDocCount, pipelineAggregators, metaData);
     }
 
     /**
@@ -80,7 +80,7 @@ public class UnmappedTerms extends InternalTerms<UnmappedTerms, UnmappedTerms.Bu
 
     @Override
     public UnmappedTerms create(List<Bucket> buckets) {
-        return new UnmappedTerms(name, order, requiredSize, minDocCount, pipelineAggregators(), metaData);
+        return new UnmappedTerms(name, order, requiredStart, requiredSize, minDocCount, pipelineAggregators(), metaData);
     }
 
     @Override

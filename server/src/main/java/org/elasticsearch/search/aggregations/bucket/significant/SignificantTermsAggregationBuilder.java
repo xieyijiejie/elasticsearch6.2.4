@@ -60,7 +60,7 @@ public class SignificantTermsAggregationBuilder extends ValuesSourceAggregationB
     static final ParseField HEURISTIC = new ParseField("significance_heuristic");
 
     static final TermsAggregator.BucketCountThresholds DEFAULT_BUCKET_COUNT_THRESHOLDS = new TermsAggregator.BucketCountThresholds(
-            3, 0, 10, -1);
+            3, 0, 10, 0, -1);
     static final SignificanceHeuristic DEFAULT_SIGNIFICANCE_HEURISTIC = new JLHScore();
 
     public static Aggregator.Parser getParser(ParseFieldRegistry<SignificanceHeuristicParser> significanceHeuristicParserRegistry) {
@@ -76,6 +76,8 @@ public class SignificantTermsAggregationBuilder extends ValuesSourceAggregationB
                 TermsAggregationBuilder.SHARD_MIN_DOC_COUNT_FIELD_NAME);
 
         aggregationParser.declareInt(SignificantTermsAggregationBuilder::size, TermsAggregationBuilder.REQUIRED_SIZE_FIELD_NAME);
+
+        aggregationParser.declareInt(SignificantTermsAggregationBuilder::start, TermsAggregationBuilder.REQUIRED_START_FIELD_NAME);
 
         aggregationParser.declareString(SignificantTermsAggregationBuilder::executionHint,
                 TermsAggregationBuilder.EXECUTION_HINT_FIELD_NAME);
@@ -171,6 +173,17 @@ public class SignificantTermsAggregationBuilder extends ValuesSourceAggregationB
         return this;
     }
 
+    /**
+     * Sets the start - indicating how many term buckets should be returned by page
+     * (defaults to 0)
+     */
+    public SignificantTermsAggregationBuilder start(int start) {
+        if (start <= 0) {
+            throw new IllegalArgumentException("[start] must be greater than 0. Found [" + start + "] in [" + name + "]");
+        }
+        bucketCountThresholds.setRequiredStart(start);
+        return this;
+    }
     /**
      * Sets the shard_size - indicating the number of term buckets each shard
      * will return to the coordinating node (the node that coordinates the

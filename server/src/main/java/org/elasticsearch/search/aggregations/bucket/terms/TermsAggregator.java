@@ -57,12 +57,14 @@ public abstract class TermsAggregator extends DeferableBucketAggregator {
         private long minDocCount;
         private long shardMinDocCount;
         private int requiredSize;
+        private int requiredStart;
         private int shardSize;
 
-        public BucketCountThresholds(long minDocCount, long shardMinDocCount, int requiredSize, int shardSize) {
+        public BucketCountThresholds(long minDocCount, long shardMinDocCount, int requiredSize, int requiredStart, int shardSize) {
             this.minDocCount = minDocCount;
             this.shardMinDocCount = shardMinDocCount;
             this.requiredSize = requiredSize;
+            this.requiredStart = requiredStart;
             this.shardSize = shardSize;
         }
 
@@ -71,6 +73,7 @@ public abstract class TermsAggregator extends DeferableBucketAggregator {
          */
         public BucketCountThresholds(StreamInput in) throws IOException {
             requiredSize = in.readInt();
+            requiredStart = in.readInt();
             shardSize = in.readInt();
             minDocCount = in.readLong();
             shardMinDocCount = in.readLong();
@@ -79,6 +82,7 @@ public abstract class TermsAggregator extends DeferableBucketAggregator {
         @Override
         public void writeTo(StreamOutput out) throws IOException {
             out.writeInt(requiredSize);
+            out.writeInt(requiredStart);
             out.writeInt(shardSize);
             out.writeLong(minDocCount);
             out.writeLong(shardMinDocCount);
@@ -86,7 +90,7 @@ public abstract class TermsAggregator extends DeferableBucketAggregator {
 
         public BucketCountThresholds(BucketCountThresholds bucketCountThresholds) {
             this(bucketCountThresholds.minDocCount, bucketCountThresholds.shardMinDocCount, bucketCountThresholds.requiredSize,
-                    bucketCountThresholds.shardSize);
+                    bucketCountThresholds.requiredStart, bucketCountThresholds.shardSize);
         }
 
         public void ensureValidity() {
@@ -101,8 +105,8 @@ public abstract class TermsAggregator extends DeferableBucketAggregator {
                 setShardMinDocCount(minDocCount);
             }
 
-            if (requiredSize <= 0 || shardSize <= 0) {
-                throw new ElasticsearchException("parameters [required_size] and [shard_size] must be >0 in terms aggregation.");
+            if (requiredSize <= 0 || shardSize <= 0 || requiredStart < 0) {
+                throw new ElasticsearchException("parameters [required_size] and [shard_size] and [required_start] must be >0 in terms aggregation.");
             }
 
             if (minDocCount < 0 || shardMinDocCount < 0) {
@@ -130,8 +134,16 @@ public abstract class TermsAggregator extends DeferableBucketAggregator {
             return requiredSize;
         }
 
+        public int getRequiredStart() {
+            return requiredStart;
+        }
+
         public void setRequiredSize(int requiredSize) {
             this.requiredSize = requiredSize;
+        }
+
+        public void setRequiredStart(int requiredStart) {
+            this.requiredStart = requiredStart;
         }
 
         public int getShardSize() {
@@ -145,6 +157,7 @@ public abstract class TermsAggregator extends DeferableBucketAggregator {
         @Override
         public XContentBuilder toXContent(XContentBuilder builder, Params params) throws IOException {
             builder.field(TermsAggregationBuilder.REQUIRED_SIZE_FIELD_NAME.getPreferredName(), requiredSize);
+            builder.field(TermsAggregationBuilder.REQUIRED_START_FIELD_NAME.getPreferredName(), requiredStart);
             if (shardSize != -1) {
                 builder.field(TermsAggregationBuilder.SHARD_SIZE_FIELD_NAME.getPreferredName(), shardSize);
             }
@@ -155,7 +168,7 @@ public abstract class TermsAggregator extends DeferableBucketAggregator {
 
         @Override
         public int hashCode() {
-            return Objects.hash(requiredSize, shardSize, minDocCount, shardMinDocCount);
+            return Objects.hash(requiredSize, requiredStart, shardSize, minDocCount, shardMinDocCount);
         }
 
         @Override
@@ -170,6 +183,7 @@ public abstract class TermsAggregator extends DeferableBucketAggregator {
             return Objects.equals(requiredSize, other.requiredSize)
                     && Objects.equals(shardSize, other.shardSize)
                     && Objects.equals(minDocCount, other.minDocCount)
+                    && Objects.equals(requiredStart, other.requiredStart)
                     && Objects.equals(shardMinDocCount, other.shardMinDocCount);
         }
     }

@@ -55,9 +55,10 @@ public class TermsAggregationBuilder extends ValuesSourceAggregationBuilder<Valu
     public static final ParseField MIN_DOC_COUNT_FIELD_NAME = new ParseField("min_doc_count");
     public static final ParseField SHARD_MIN_DOC_COUNT_FIELD_NAME = new ParseField("shard_min_doc_count");
     public static final ParseField REQUIRED_SIZE_FIELD_NAME = new ParseField("size");
+    public static final ParseField REQUIRED_START_FIELD_NAME = new ParseField("start");
 
     static final TermsAggregator.BucketCountThresholds DEFAULT_BUCKET_COUNT_THRESHOLDS = new TermsAggregator.BucketCountThresholds(1, 0, 10,
-            -1);
+           0, -1);
     public static final ParseField SHOW_TERM_DOC_COUNT_ERROR = new ParseField("show_term_doc_count_error");
     public static final ParseField ORDER_FIELD = new ParseField("order");
 
@@ -76,6 +77,8 @@ public class TermsAggregationBuilder extends ValuesSourceAggregationBuilder<Valu
         PARSER.declareLong(TermsAggregationBuilder::shardMinDocCount, SHARD_MIN_DOC_COUNT_FIELD_NAME);
 
         PARSER.declareInt(TermsAggregationBuilder::size, REQUIRED_SIZE_FIELD_NAME);
+
+        PARSER.declareInt(TermsAggregationBuilder::start, REQUIRED_START_FIELD_NAME);
 
         PARSER.declareString(TermsAggregationBuilder::executionHint, EXECUTION_HINT_FIELD_NAME);
 
@@ -146,6 +149,14 @@ public class TermsAggregationBuilder extends ValuesSourceAggregationBuilder<Valu
             throw new IllegalArgumentException("[size] must be greater than 0. Found [" + size + "] in [" + name + "]");
         }
         bucketCountThresholds.setRequiredSize(size);
+        return this;
+    }
+
+    public TermsAggregationBuilder start(int start) {
+        if (start < 0) {
+            throw new IllegalArgumentException("[start] must be greater than 0. Found [" + start + "] in [" + name + "]");
+        }
+        bucketCountThresholds.setRequiredStart(start);
         return this;
     }
 

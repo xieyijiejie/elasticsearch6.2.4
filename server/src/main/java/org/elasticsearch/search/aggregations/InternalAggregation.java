@@ -176,6 +176,21 @@ public abstract class InternalAggregation implements Aggregation, NamedWriteable
         out.writeVInt(size);
     }
 
+    protected static int readStart(StreamInput in) throws IOException {
+        final int start = in.readVInt();
+        return start == 0 ? Integer.MAX_VALUE : start;
+    }
+
+    /**
+     * Write a size under the assumption that a value of 0 means unlimited.
+     */
+    protected static void writeStart(int start, StreamOutput out) throws IOException {
+        if (start == Integer.MAX_VALUE) {
+            start = 0;
+        }
+        out.writeVInt(start);
+    }
+
     @Override
     public Map<String, Object> getMetaData() {
         return metaData;

@@ -85,6 +85,9 @@ public class SignificantTextAggregationBuilder extends AbstractAggregationBuilde
         PARSER.declareInt(SignificantTextAggregationBuilder::size,
                 TermsAggregationBuilder.REQUIRED_SIZE_FIELD_NAME);
 
+        PARSER.declareInt(SignificantTextAggregationBuilder::start,
+            TermsAggregationBuilder.REQUIRED_START_FIELD_NAME);
+
         PARSER.declareString(SignificantTextAggregationBuilder::fieldName, FIELD_NAME);
 
         PARSER.declareStringArray(SignificantTextAggregationBuilder::sourceFieldNames, SOURCE_FIELDS_NAME);
@@ -164,6 +167,15 @@ public class SignificantTextAggregationBuilder extends AbstractAggregationBuilde
                     "[size] must be greater than 0. Found [" + size + "] in [" + name + "]");
         }
         bucketCountThresholds.setRequiredSize(size);
+        return this;
+    }
+
+    public SignificantTextAggregationBuilder start(int start) {
+        if (start <= 0) {
+            throw new IllegalArgumentException(
+                "[size] must be greater than 0. Found [" + start + "] in [" + name + "]");
+        }
+        bucketCountThresholds.setRequiredSize(start);
         return this;
     }
 

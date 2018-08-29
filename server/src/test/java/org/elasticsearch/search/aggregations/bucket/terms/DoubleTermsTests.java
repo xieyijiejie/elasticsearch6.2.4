@@ -56,7 +56,7 @@ public class DoubleTermsTests extends InternalTermsTestCase {
             int docCount = randomIntBetween(1, 100);
             buckets.add(new DoubleTerms.Bucket(term, docCount, aggregations, showTermDocCountError, docCountError, format));
         }
-        return new DoubleTerms(name, order, requiredSize, minDocCount, pipelineAggregators,
+        return new DoubleTerms(name, order, 0, requiredSize, minDocCount, pipelineAggregators,
                 metaData, format, shardSize, showTermDocCountError, otherDocCount, buckets, docCountError);
     }
 
@@ -124,7 +124,7 @@ public class DoubleTermsTests extends InternalTermsTestCase {
             default:
                 throw new AssertionError("Illegal randomisation branch");
             }
-            return new DoubleTerms(name, order, requiredSize, minDocCount, pipelineAggregators, metaData, format, shardSize,
+            return new DoubleTerms(name, order, 0, requiredSize, minDocCount, pipelineAggregators, metaData, format, shardSize,
                     showTermDocCountError, otherDocCount, buckets, docCountError);
         } else {
             String name = instance.getName();
@@ -154,7 +154,7 @@ public class DoubleTermsTests extends InternalTermsTestCase {
             default:
                 throw new AssertionError("Illegal randomisation branch");
             }
-            return new UnmappedTerms(name, order, requiredSize, minDocCount, pipelineAggregators, metaData);
+            return new UnmappedTerms(name, order, 0, requiredSize, minDocCount, pipelineAggregators, metaData);
         }
     }
 

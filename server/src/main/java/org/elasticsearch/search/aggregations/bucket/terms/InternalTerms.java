@@ -179,13 +179,15 @@ public abstract class InternalTerms<A extends InternalTerms<A, B>, B extends Int
     }
 
     protected final BucketOrder order;
+    protected final int requiredStart;
     protected final int requiredSize;
     protected final long minDocCount;
 
-    protected InternalTerms(String name, BucketOrder order, int requiredSize, long minDocCount,
+    protected InternalTerms(String name, BucketOrder order, int requiredStart, int requiredSize, long minDocCount,
             List<PipelineAggregator> pipelineAggregators, Map<String, Object> metaData) {
         super(name, pipelineAggregators, metaData);
         this.order = order;
+        this.requiredStart = requiredStart;
         this.requiredSize = requiredSize;
         this.minDocCount = minDocCount;
     }
@@ -198,6 +200,7 @@ public abstract class InternalTerms<A extends InternalTerms<A, B>, B extends Int
        order = InternalOrder.Streams.readOrder(in);
        requiredSize = readSize(in);
        minDocCount = in.readVLong();
+       requiredStart = readStart(in);
     }
 
     @Override
@@ -330,12 +333,13 @@ public abstract class InternalTerms<A extends InternalTerms<A, B>, B extends Int
         InternalTerms<?,?> that = (InternalTerms<?,?>) obj;
         return Objects.equals(minDocCount, that.minDocCount)
                 && Objects.equals(order, that.order)
-                && Objects.equals(requiredSize, that.requiredSize);
+                && Objects.equals(requiredSize, that.requiredSize)
+                && Objects.equals(requiredStart, that.requiredStart);
     }
 
     @Override
     protected int doHashCode() {
-        return Objects.hash(minDocCount, order, requiredSize);
+        return Objects.hash(minDocCount, order, requiredStart, requiredSize);
     }
 
     protected static XContentBuilder doXContentCommon(XContentBuilder builder, Params params,

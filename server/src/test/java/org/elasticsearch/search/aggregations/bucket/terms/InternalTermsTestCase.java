@@ -64,7 +64,7 @@ public abstract class InternalTermsTestCase extends InternalMultiBucketAggregati
             List<PipelineAggregator> pipelineAggregators,
             Map<String, Object> metaData) {
         InternalTerms<?, ?> testInstance = createTestInstance(name, pipelineAggregators, metaData);
-        return new UnmappedTerms(name, testInstance.order, testInstance.requiredSize, testInstance.minDocCount,
+        return new UnmappedTerms(name, testInstance.order, testInstance.requiredStart, testInstance.requiredSize, testInstance.minDocCount,
                 pipelineAggregators, metaData);
     }
 
