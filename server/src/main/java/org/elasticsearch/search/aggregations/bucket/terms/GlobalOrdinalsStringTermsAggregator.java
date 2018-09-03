@@ -234,7 +234,7 @@ public class GlobalOrdinalsStringTermsAggregator extends AbstractStringTermsAggr
 
         return new StringTerms(name, order, bucketCountThresholds.getRequiredStart(), bucketCountThresholds.getRequiredSize(), bucketCountThresholds.getMinDocCount(),
                 pipelineAggregators(), metaData(), format, bucketCountThresholds.getShardSize(), showTermDocCountError,
-                otherDocCount, Arrays.asList(Arrays.copyOfRange(list, bucketCountThresholds.getRequiredStart(), size)), 0);
+                otherDocCount, Arrays.asList(Arrays.copyOfRange(list, bucketCountThresholds.getRequiredStart(), size>list.length?list.length:size)), 0);
     }
 
     /**

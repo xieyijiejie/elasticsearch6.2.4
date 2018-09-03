@@ -207,6 +207,7 @@ public abstract class InternalTerms<A extends InternalTerms<A, B>, B extends Int
     protected final void doWriteTo(StreamOutput out) throws IOException {
         order.writeTo(out);
         writeSize(requiredSize, out);
+        writeSize(requiredStart, out);
         out.writeVLong(minDocCount);
         writeTermTypeInfoTo(out);
     }

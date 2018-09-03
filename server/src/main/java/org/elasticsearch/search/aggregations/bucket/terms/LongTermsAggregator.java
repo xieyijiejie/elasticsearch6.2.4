@@ -164,7 +164,7 @@ public class LongTermsAggregator extends TermsAggregator {
 
         return new LongTerms(name, order, bucketCountThresholds.getRequiredStart(), bucketCountThresholds.getRequiredSize(), bucketCountThresholds.getMinDocCount(),
                 pipelineAggregators(), metaData(), format, bucketCountThresholds.getShardSize(), showTermDocCountError, otherDocCount,
-                Arrays.asList(Arrays.copyOfRange(list, bucketCountThresholds.getRequiredStart(), size)), 0);
+                Arrays.asList(Arrays.copyOfRange(list, bucketCountThresholds.getRequiredStart(), size>list.length?list.length:size)), 0);
     }
 
     @Override
