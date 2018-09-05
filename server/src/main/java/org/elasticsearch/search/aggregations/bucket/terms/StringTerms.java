@@ -110,10 +110,10 @@ public class StringTerms extends InternalMappedTerms<StringTerms, StringTerms.Bu
     }
 
     public StringTerms(String name, BucketOrder order, int requiredStart, int requiredSize, long minDocCount, List<PipelineAggregator> pipelineAggregators,
-            Map<String, Object> metaData, DocValueFormat format, int shardSize, boolean showTermDocCountError, long otherDocCount,
+            Map<String, Object> metaData, DocValueFormat format, int shardSize, boolean showTermDocCountError, long otherDocCount, long bucketCount,
             List<Bucket> buckets, long docCountError) {
         super(name, order, requiredStart, requiredSize, minDocCount, pipelineAggregators, metaData, format,
-                shardSize, showTermDocCountError, otherDocCount, buckets, docCountError);
+                shardSize, showTermDocCountError, otherDocCount, bucketCount, buckets, docCountError);
     }
 
     /**
@@ -131,7 +131,7 @@ public class StringTerms extends InternalMappedTerms<StringTerms, StringTerms.Bu
     @Override
     public StringTerms create(List<Bucket> buckets) {
         return new StringTerms(name, order, requiredStart, requiredSize, minDocCount, pipelineAggregators(), metaData, format, shardSize,
-                showTermDocCountError, otherDocCount, buckets, docCountError);
+                showTermDocCountError, otherDocCount, bucketCount, buckets, docCountError);
     }
 
     @Override
@@ -140,10 +140,9 @@ public class StringTerms extends InternalMappedTerms<StringTerms, StringTerms.Bu
                 prototype.format);
     }
 
-    @Override
-    protected StringTerms create(String name, List<Bucket> buckets, long docCountError, long otherDocCount) {
+    protected StringTerms create(String name, List<Bucket> buckets, long docCountError, long otherDocCount, long bucketCount) {
         return new StringTerms(name, order, requiredStart, requiredSize, minDocCount, pipelineAggregators(), getMetaData(), format, shardSize,
-                showTermDocCountError, otherDocCount, buckets, docCountError);
+                showTermDocCountError, otherDocCount, bucketCount, buckets, docCountError);
     }
 
     @Override

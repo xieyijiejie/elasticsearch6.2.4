@@ -23,6 +23,8 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.test.ESTestCase;
 import org.elasticsearch.transport.MockTransportClient;
@@ -56,8 +58,12 @@ public class SearchRequestBuilderTests extends ESTestCase {
     }
 
     public void testQueryBuilderQueryToString() {
+        System.out.println(AggregationBuilders.terms("province").field("province").size(10).start(2).subAggregation(AggregationBuilders.terms("city").field("city").size(8).start(0)));
+
         SearchRequestBuilder searchRequestBuilder = client.prepareSearch();
         searchRequestBuilder.setQuery(QueryBuilders.matchAllQuery());
+        searchRequestBuilder.addAggregation(AggregationBuilders.terms("province").field("province").size(10).start(2))
+            .addAggregation(AggregationBuilders.terms("notice_type_id").field("notice_type_id").size(8).start(0));
         assertThat(searchRequestBuilder.toString(), equalTo(new SearchSourceBuilder().query(QueryBuilders.matchAllQuery()).toString()));
     }
 

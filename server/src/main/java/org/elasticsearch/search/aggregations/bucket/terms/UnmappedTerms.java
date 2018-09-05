@@ -89,7 +89,7 @@ public class UnmappedTerms extends InternalTerms<UnmappedTerms, UnmappedTerms.Bu
     }
 
     @Override
-    protected UnmappedTerms create(String name, List<Bucket> buckets, long docCountError, long otherDocCount) {
+    protected UnmappedTerms create(String name, List<Bucket> buckets, long docCountError, long otherDocCount, long bucketCount) {
         throw new UnsupportedOperationException("not supported for UnmappedTerms");
     }
 
@@ -105,7 +105,7 @@ public class UnmappedTerms extends InternalTerms<UnmappedTerms, UnmappedTerms.Bu
 
     @Override
     public final XContentBuilder doXContentBody(XContentBuilder builder, Params params) throws IOException {
-        return doXContentCommon(builder, params, 0, 0, Collections.emptyList());
+        return doXContentCommon(builder, params, 0, 0, 0, Collections.emptyList());
     }
 
     @Override

@@ -28,6 +28,7 @@ import org.elasticsearch.search.DocValueFormat;
 import org.elasticsearch.search.SearchPhaseResult;
 import org.elasticsearch.search.SearchShardTarget;
 import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.InternalAggregation;
 import org.elasticsearch.search.aggregations.InternalAggregations;
 import org.elasticsearch.search.aggregations.pipeline.PipelineAggregator;
 import org.elasticsearch.search.aggregations.pipeline.SiblingPipelineAggregator;
@@ -135,6 +136,7 @@ public final class QuerySearchResult extends SearchPhaseResult {
         this.topDocs = topDocs;
         hasScoreDocs = topDocs.scoreDocs.length > 0;
         this.totalHits = topDocs.totalHits;
+//        this.totalBuckets = aggregations.asList().size();
         this.maxScore = topDocs.getMaxScore();
     }
 

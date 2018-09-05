@@ -36,6 +36,7 @@ import org.elasticsearch.search.aggregations.support.ValuesSource;
 import org.elasticsearch.search.internal.SearchContext;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -125,6 +126,7 @@ public class LongTermsAggregator extends TermsAggregator {
         }
 
         final int size = (int) Math.min(bucketOrds.size(), bucketCountThresholds.getShardSize());
+        long bucketCount = 0;
         long otherDocCount = 0;
         BucketPriorityQueue<LongTerms.Bucket> ordered = new BucketPriorityQueue<>(size, order.comparator(this));
         LongTerms.Bucket spare = null;
@@ -138,6 +140,7 @@ public class LongTermsAggregator extends TermsAggregator {
             spare.bucketOrd = i;
             if (bucketCountThresholds.getShardMinDocCount() <= spare.docCount) {
                 spare = ordered.insertWithOverflow(spare);
+                bucketCount++;
                 if (spare == null) {
                     consumeBucketsAndMaybeBreak(1);
                 }
@@ -162,15 +165,20 @@ public class LongTermsAggregator extends TermsAggregator {
             list[i].docCountError = 0;
         }
 
+        if(bucketCountThresholds.getRequiredStart() >= list.length){
+            return new StringTerms(name, order, bucketCountThresholds.getRequiredStart(), bucketCountThresholds.getRequiredSize(), bucketCountThresholds.getMinDocCount(),
+                pipelineAggregators(), metaData(), format, bucketCountThresholds.getShardSize(), showTermDocCountError,
+                otherDocCount, bucketCount, new ArrayList<>(), 0);
+        }
         return new LongTerms(name, order, bucketCountThresholds.getRequiredStart(), bucketCountThresholds.getRequiredSize(), bucketCountThresholds.getMinDocCount(),
-                pipelineAggregators(), metaData(), format, bucketCountThresholds.getShardSize(), showTermDocCountError, otherDocCount,
+                pipelineAggregators(), metaData(), format, bucketCountThresholds.getShardSize(), showTermDocCountError, otherDocCount, bucketCount,
                 Arrays.asList(Arrays.copyOfRange(list, bucketCountThresholds.getRequiredStart(), size>list.length?list.length:size)), 0);
     }
 
     @Override
     public InternalAggregation buildEmptyAggregation() {
         return new LongTerms(name, order, bucketCountThresholds.getRequiredStart(), bucketCountThresholds.getRequiredSize(), bucketCountThresholds.getMinDocCount(),
-                pipelineAggregators(), metaData(), format, bucketCountThresholds.getShardSize(), showTermDocCountError, 0, emptyList(), 0);
+                pipelineAggregators(), metaData(), format, bucketCountThresholds.getShardSize(), showTermDocCountError, 0, 0,  emptyList(), 0);
     }
 
     @Override

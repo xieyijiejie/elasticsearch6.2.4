@@ -85,7 +85,7 @@ public abstract class InternalAggregation implements Aggregation, NamedWriteable
         }
     }
 
-    protected final String name;
+    public final String name;
 
     protected final Map<String, Object> metaData;
 
@@ -178,7 +178,7 @@ public abstract class InternalAggregation implements Aggregation, NamedWriteable
 
     protected static int readStart(StreamInput in) throws IOException {
         final int start = in.readVInt();
-        return start == 0 ? Integer.MAX_VALUE : start;
+        return start;
     }
 
     /**
@@ -189,6 +189,18 @@ public abstract class InternalAggregation implements Aggregation, NamedWriteable
             start = 0;
         }
         out.writeVInt(start);
+    }
+
+    protected static int readBucketCount(StreamInput in) throws IOException {
+        final int bucketCount = in.readVInt();
+        return bucketCount;
+    }
+
+    /**
+     * Write a size under the assumption that a value of 0 means unlimited.
+     */
+    protected static void writeBucketCount(int bucketCount, StreamOutput out) throws IOException {
+        out.writeVInt(bucketCount);
     }
 
     @Override

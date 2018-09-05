@@ -42,6 +42,7 @@ public abstract class InternalMappedTerms<A extends InternalTerms<A, B>, B exten
     protected final int shardSize;
     protected final boolean showTermDocCountError;
     protected final long otherDocCount;
+    protected final long bucketCount;
     protected final List<B> buckets;
     protected Map<String, B> bucketMap;
 
@@ -49,13 +50,14 @@ public abstract class InternalMappedTerms<A extends InternalTerms<A, B>, B exten
 
     protected InternalMappedTerms(String name, BucketOrder order, int requiredStart, int requiredSize, long minDocCount,
             List<PipelineAggregator> pipelineAggregators, Map<String, Object> metaData, DocValueFormat format, int shardSize,
-            boolean showTermDocCountError, long otherDocCount, List<B> buckets, long docCountError) {
+            boolean showTermDocCountError, long otherDocCount, long bucketCount, List<B> buckets, long docCountError) {
         super(name, order, requiredStart, requiredSize, minDocCount, pipelineAggregators, metaData);
         this.format = format;
         this.shardSize = shardSize;
         this.showTermDocCountError = showTermDocCountError;
         this.otherDocCount = otherDocCount;
         this.docCountError = docCountError;
+        this.bucketCount = bucketCount;
         this.buckets = buckets;
     }
 
@@ -69,6 +71,7 @@ public abstract class InternalMappedTerms<A extends InternalTerms<A, B>, B exten
         shardSize = readSize(in);
         showTermDocCountError = in.readBoolean();
         otherDocCount = in.readVLong();
+        bucketCount = in.readVLong();
         buckets = in.readList(stream -> bucketReader.read(stream, format, showTermDocCountError));
     }
 
@@ -79,6 +82,7 @@ public abstract class InternalMappedTerms<A extends InternalTerms<A, B>, B exten
         writeSize(shardSize, out);
         out.writeBoolean(showTermDocCountError);
         out.writeVLong(otherDocCount);
+        out.writeVLong(bucketCount);
         out.writeList(buckets);
     }
 
@@ -122,6 +126,7 @@ public abstract class InternalMappedTerms<A extends InternalTerms<A, B>, B exten
                 && Objects.equals(buckets, that.buckets)
                 && Objects.equals(format, that.format)
                 && Objects.equals(otherDocCount, that.otherDocCount)
+                && Objects.equals(bucketCount, that.bucketCount)
                 && Objects.equals(showTermDocCountError, that.showTermDocCountError)
                 && Objects.equals(shardSize, that.shardSize)
                 && Objects.equals(docCountError, that.docCountError);
@@ -129,11 +134,11 @@ public abstract class InternalMappedTerms<A extends InternalTerms<A, B>, B exten
 
     @Override
     protected int doHashCode() {
-        return Objects.hash(super.doHashCode(), buckets, format, otherDocCount, showTermDocCountError, shardSize);
+        return Objects.hash(super.doHashCode(), buckets, format, otherDocCount, showTermDocCountError, shardSize, bucketCount);
     }
 
     @Override
     public final XContentBuilder doXContentBody(XContentBuilder builder, Params params) throws IOException {
-        return doXContentCommon(builder, params, docCountError, otherDocCount, buckets);
+        return doXContentCommon(builder, params, docCountError, otherDocCount, bucketCount, buckets);
     }
 }

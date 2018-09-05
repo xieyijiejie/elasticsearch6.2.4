@@ -46,6 +46,7 @@ import org.elasticsearch.search.aggregations.support.ValuesSource;
 import org.elasticsearch.search.internal.SearchContext;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -186,6 +187,7 @@ public class GlobalOrdinalsStringTermsAggregator extends AbstractStringTermsAggr
             size = (int) Math.min(maxBucketOrd(), bucketCountThresholds.getShardSize());
         }
         long otherDocCount = 0;
+        long bucketCount = 0;
         BucketPriorityQueue<OrdBucket> ordered = new BucketPriorityQueue<>(size, order.comparator(this));
         OrdBucket spare = new OrdBucket(-1, 0, null, showTermDocCountError, 0);
         for (long globalTermOrd = 0; globalTermOrd < valueCount; ++globalTermOrd) {
@@ -203,6 +205,7 @@ public class GlobalOrdinalsStringTermsAggregator extends AbstractStringTermsAggr
             spare.docCount = bucketDocCount;
             if (bucketCountThresholds.getShardMinDocCount() <= spare.docCount) {
                 spare = ordered.insertWithOverflow(spare);
+                bucketCount++;
                 if (spare == null) {
                     consumeBucketsAndMaybeBreak(1);
                     spare = new OrdBucket(-1, 0, null, showTermDocCountError, 0);
@@ -232,9 +235,14 @@ public class GlobalOrdinalsStringTermsAggregator extends AbstractStringTermsAggr
             bucket.docCountError = 0;
         }
 
+        if(bucketCountThresholds.getRequiredStart() >= list.length){
+            return new StringTerms(name, order, bucketCountThresholds.getRequiredStart(), bucketCountThresholds.getRequiredSize(), bucketCountThresholds.getMinDocCount(),
+                pipelineAggregators(), metaData(), format, bucketCountThresholds.getShardSize(), showTermDocCountError,
+                otherDocCount, bucketCount, new ArrayList<>(), 0);
+        }
         return new StringTerms(name, order, bucketCountThresholds.getRequiredStart(), bucketCountThresholds.getRequiredSize(), bucketCountThresholds.getMinDocCount(),
                 pipelineAggregators(), metaData(), format, bucketCountThresholds.getShardSize(), showTermDocCountError,
-                otherDocCount, Arrays.asList(Arrays.copyOfRange(list, bucketCountThresholds.getRequiredStart(), size>list.length?list.length:size)), 0);
+                otherDocCount, bucketCount, Arrays.asList(Arrays.copyOfRange(list, bucketCountThresholds.getRequiredStart(), size>list.length?list.length:size)), 0);
     }
 
     /**

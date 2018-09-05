@@ -35,6 +35,7 @@ import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.NumericUtils;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.common.network.InetAddresses;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.util.MockBigArrays;
@@ -183,21 +184,21 @@ public class TermsAggregatorTests extends AggregatorTestCase {
             }
         }
     }
-
+    
     public void testSimpleLisa() throws Exception {
         try (Directory directory = newDirectory()) {
             try (RandomIndexWriter indexWriter = new RandomIndexWriter(random(), directory)) {
                 Document document = new Document();
                 document.add(new SortedSetDocValuesField("string", new BytesRef("a")));
-                document.add(new SortedSetDocValuesField("string", new BytesRef("b")));
+                document.add(new SortedSetDocValuesField("string2", new BytesRef("b")));
                 indexWriter.addDocument(document);
                 document = new Document();
                 document.add(new SortedSetDocValuesField("string", new BytesRef("c")));
-                document.add(new SortedSetDocValuesField("string", new BytesRef("a")));
+                document.add(new SortedSetDocValuesField("string2", new BytesRef("a")));
                 indexWriter.addDocument(document);
                 document = new Document();
                 document.add(new SortedSetDocValuesField("string", new BytesRef("b")));
-                document.add(new SortedSetDocValuesField("string", new BytesRef("d")));
+                document.add(new SortedSetDocValuesField("string2", new BytesRef("d")));
                 indexWriter.addDocument(document);
                 try (IndexReader indexReader = maybeWrapReaderEs(indexWriter.getReader())) {
                     IndexSearcher indexSearcher = newIndexSearcher(indexReader);
@@ -206,7 +207,7 @@ public class TermsAggregatorTests extends AggregatorTestCase {
                             .executionHint(executionMode.toString())
                             .field("string")
                             .start(2)
-                            .size(4)
+                            .size(10)
                             .order(BucketOrder.key(true));
                         MappedFieldType fieldType = new KeywordFieldMapper.KeywordFieldType();
                         fieldType.setName("string");

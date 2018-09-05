@@ -18,6 +18,8 @@
  */
 package org.elasticsearch.search.aggregations.bucket.terms;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import org.elasticsearch.common.ParseField;
 import org.elasticsearch.common.io.stream.StreamInput;
 import org.elasticsearch.common.io.stream.StreamOutput;
@@ -46,6 +48,7 @@ public abstract class InternalTerms<A extends InternalTerms<A, B>, B extends Int
 
     protected static final ParseField DOC_COUNT_ERROR_UPPER_BOUND_FIELD_NAME = new ParseField("doc_count_error_upper_bound");
     protected static final ParseField SUM_OF_OTHER_DOC_COUNTS = new ParseField("sum_other_doc_count");
+    protected static final ParseField BUCKET_COUNT = new ParseField("bucket_count");
 
     public abstract static class Bucket<B extends Bucket<B>> extends InternalMultiBucketAggregation.InternalBucket
         implements Terms.Bucket, KeyComparable<B> {
@@ -225,10 +228,18 @@ public abstract class InternalTerms<A extends InternalTerms<A, B>, B extends Int
         Map<Object, List<B>> buckets = new HashMap<>();
         long sumDocCountError = 0;
         long otherDocCount = 0;
+        long bucketCount = 0;
         InternalTerms<A, B> referenceTerms = null;
         for (InternalAggregation aggregation : aggregations) {
             @SuppressWarnings("unchecked")
             InternalTerms<A, B> terms = (InternalTerms<A, B>) aggregation;
+            System.out.println(terms.toString());
+
+            JsonObject aggregationJSONObject = new JsonParser().parse(terms.toString()).getAsJsonObject();
+            if(aggregationJSONObject.has(aggregation.name) && aggregationJSONObject.get(aggregation.name).getAsJsonObject().has(BUCKET_COUNT.getPreferredName())){
+                bucketCount = aggregationJSONObject.get(aggregation.name).getAsJsonObject().get(BUCKET_COUNT.getPreferredName()).getAsLong();
+            }
+
             if (referenceTerms == null && !aggregation.getClass().equals(UnmappedTerms.class)) {
                 referenceTerms = terms;
             }
@@ -315,14 +326,16 @@ public abstract class InternalTerms<A extends InternalTerms<A, B>, B extends Int
         } else {
             docCountError = aggregations.size() == 1 ? 0 : sumDocCountError;
         }
-        return create(name, Arrays.asList(list), docCountError, otherDocCount);
+        return create(name, Arrays.asList(list), docCountError, otherDocCount, bucketCount);
     }
 
     protected abstract void setDocCountError(long docCountError);
 
     protected abstract int getShardSize();
 
-    protected abstract A create(String name, List<B> buckets, long docCountError, long otherDocCount);
+//    protected abstract A create(String name, List<B> buckets, long docCountError, long otherDocCount);
+
+    protected abstract A create(String name, List<B> buckets, long docCountError, long otherDocCount, long bucketCount);
 
     /**
      * Create an array to hold some buckets. Used in collecting the results.
@@ -344,9 +357,10 @@ public abstract class InternalTerms<A extends InternalTerms<A, B>, B extends Int
     }
 
     protected static XContentBuilder doXContentCommon(XContentBuilder builder, Params params,
-                                               long docCountError, long otherDocCount, List<? extends Bucket> buckets) throws IOException {
+                                               long docCountError, long otherDocCount, long bucketCount, List<? extends Bucket> buckets) throws IOException {
         builder.field(DOC_COUNT_ERROR_UPPER_BOUND_FIELD_NAME.getPreferredName(), docCountError);
         builder.field(SUM_OF_OTHER_DOC_COUNTS.getPreferredName(), otherDocCount);
+        builder.field(BUCKET_COUNT.getPreferredName(), bucketCount);
         builder.startArray(CommonFields.BUCKETS.getPreferredName());
         for (Bucket bucket : buckets) {
             bucket.toXContent(builder, params);

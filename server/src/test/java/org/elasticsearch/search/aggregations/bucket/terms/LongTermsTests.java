@@ -58,7 +58,7 @@ public class LongTermsTests extends InternalTermsTestCase {
             buckets.add(new LongTerms.Bucket(term, docCount, aggregations, showTermDocCountError, docCountError, format));
         }
         return new LongTerms(name, order, requiredStart, requiredSize, minDocCount, pipelineAggregators,
-                metaData, format, shardSize, showTermDocCountError, otherDocCount, buckets, docCountError);
+                metaData, format, shardSize, showTermDocCountError, otherDocCount, 0, buckets, docCountError);
     }
 
     @Override
@@ -126,7 +126,7 @@ public class LongTermsTests extends InternalTermsTestCase {
                 throw new AssertionError("Illegal randomisation branch");
             }
             return new LongTerms(name, order, 0, requiredSize, minDocCount, pipelineAggregators, metaData, format, shardSize,
-                    showTermDocCountError, otherDocCount, buckets, docCountError);
+                    showTermDocCountError, otherDocCount, 0, buckets, docCountError);
         } else {
             String name = instance.getName();
             BucketOrder order = instance.order;
